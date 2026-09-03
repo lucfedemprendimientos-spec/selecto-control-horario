@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  />
+  <title>Control Horario · SELECTO</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      padding: 20px 16px 56px;
+      font-family: Georgia, "Times New Roman", "Palatino Linotype", serif;
+      background:
+        radial-gradient(ellipse at 20% 0%, #2d4a35 0%, transparent 50%),
+        radial-gradient(ellipse at 100% 100%, #1a2e1f 0%, transparent 45%),
+        linear-gradient(160deg, #e8f0ea 0%, #d4e0d6 55%, #c5d4c8 100%);
+      color: #1a2e1f;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+    body.has-warning-banner {
+      padding-top: 56px;
+    }
+    .app-shell {
+      width: 100%;
+      max-width: 440px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .warning-banner {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 2000;
+      background: linear-gradient(135deg, #ca8a04, #a16207);
+      color: #fffbeb;
+      text-align: center;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: system-ui, sans-serif;
+      box-shadow: 0 4px 16px rgba(161, 98, 7, 0.35);
+    }
+    .card {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.92);
+      border-radius: 4px;
+      padding: 22px 18px 18px;
+      box-shadow: 0 12px 40px rgba(26, 46, 31, 0.18);
+      border: 1px solid rgba(26, 46, 31, 0.08);
+    }
+    .logo-wrap {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+    .logo-wrap img {
+      height: 48px;
+      display: block;
+    }
+    .brand-sub {
+      text-align: center;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #4a6b52;
+      margin-bottom: 4px;
+      font-weight: 600;
+      font-family: system-ui, sans-serif;
+    }
+    h1 {
+      font-size: 22px;
+      text-align: center;
+      margin: 2px 0 8px;
+      color: #1a2e1f;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+    .subtitle {
+      text-align: center;
+      font-size: 13px;
+      color: #4a6b52;
+      margin-bottom: 14px;
+      font-family: system-ui, sans-serif;
+    }
+    .section-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #2d4a35;
+      margin: 8px 0 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-family: system-ui, sans-serif;
+    }
+    label {
+      display: block;
+      margin: 9px 0 3px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #1a2e1f;
+      font-family: system-ui, sans-serif;
+    }
+    input,
+    textarea {
+      width: 100%;
+      padding: 10px 11px;
+      border-radius: 4px;
+      border: 1px solid #b8c9bc;
+      font-size: 14px;
+      font-family: system-ui, sans-serif;
+      outline: none;
+      background: #f7faf8;
+      color: #1a2e1f;
+      transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+    }
+    input:read-only {
+      background: #eef4f0;
+      color: #4a6b52;
+    }
+    input::placeholder,
+    textarea::placeholder {
+      color: #8aa090;
+    }
+    input:focus,
+    textarea:focus {
+      border-color: #2d4a35;
+      box-shadow: 0 0 0 1px rgba(45, 74, 53, 0.35);
+      background: #ffffff;
+    }
+    input:read-only:focus {
+      background: #eef4f0;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 12px;
+      border-radius: 4px;
+      border: none;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: system-ui, sans-serif;
+      letter-spacing: 0.04em;
+      transition: transform 0.1s, box-shadow 0.15s, background 0.15s;
+    }
+    button.primary {
+      background: linear-gradient(135deg, #2d4a35, #1a2e1f);
+      color: #e8f0ea;
+      box-shadow: 0 8px 20px rgba(26, 46, 31, 0.35);
+    }
+    button.secondary {
+      background: #e8f0ea;
+      color: #1a2e1f;
+      box-shadow: none;
+      font-weight: 600;
+    }
+    button.warning {
+      background: linear-gradient(135deg, #ca8a04, #a16207);
+      color: #fffbeb;
+      box-shadow: 0 8px 20px rgba(161, 98, 7, 0.3);
+    }
+    button:disabled {
+      opacity: 0.55;
+      cursor: default;
+      box-shadow: none;
+      transform: none;
+    }
+    button:not(:disabled):active {
+      transform: translateY(1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    .msg {
+      margin-top: 12px;
+      padding: 9px 10px;
+      border-radius: 4px;
+      font-size: 13px;
+      line-height: 1.4;
+      text-align: left;
+      font-family: system-ui, sans-serif;
+    }
+    .muted {
+      color: #4a6b52;
+      background: #eef4f0;
+      border: 1px dashed #c5d4c8;
+    }
+    .ok {
+      background: #e5f5eb;
+      color: #166534;
+      border: 1px solid #b1e4c1;
+    }
+    .err {
+      background: #fdf2f2;
+      color: #b91c1c;
+      border: 1px solid #f9caca;
+    }
+    .emoji {
+      font-size: 20px;
+      margin-right: 4px;
+    }
+    .small-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      font-size: 11px;
+      color: #6b8570;
+      font-family: system-ui, sans-serif;
+    }
+    .link {
+      color: #2d4a35;
+      text-decoration: underline;
+      cursor: pointer;
+      font-size: 11px;
+    }
+    .footer {
+      margin-top: 14px;
+      font-size: 10px;
+      text-align: center;
+      color: #6b8570;
+      font-family: system-ui, sans-serif;
+    }
+    .hidden {
+      display: none !important;
+    }
+    .justify-box {
+      margin-top: 12px;
+      padding-top: 9px;
+      border-top: 1px dashed #c5d4c8;
+    }
+    .justify-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: #1a2e1f;
+      font-family: system-ui, sans-serif;
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      font-size: 11px;
+      padding: 3px 7px;
+      border-radius: 4px;
+      background: #e8f0ea;
+      color: #2d4a35;
+      margin-bottom: 6px;
+      font-family: system-ui, sans-serif;
+    }
+    .tag span {
+      margin-left: 4px;
+    }
+    .file-label {
+      font-size: 12px;
+      color: #4a6b52;
+      margin-top: 6px;
+      font-family: system-ui, sans-serif;
+    }
+    .file-input {
+      font-size: 11px;
+      margin-top: 3px;
+    }
+    .payment-status-widget {
+      margin-top: 14px;
+      padding: 16px 18px;
+      background: rgba(255, 255, 255, 0.88);
+      border-radius: 4px;
+      border: 1px solid rgba(26, 46, 31, 0.1);
+      box-shadow: 0 8px 24px rgba(26, 46, 31, 0.12);
+      text-align: center;
+    }
+    .psw-days {
+      font-size: 48px;
+      font-weight: 700;
+      line-height: 1;
+      color: #1a2e1f;
+      letter-spacing: 0.04em;
+    }
+    .psw-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: #4a6b52;
+      margin: 6px 0 14px;
+      font-family: system-ui, sans-serif;
+      font-weight: 600;
+    }
+    .semaphore {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+    }
+    .light {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #c5d4c8;
+      border: 2px solid rgba(26, 46, 31, 0.15);
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.12);
+    }
+    .light.green {
+      background: #22c55e;
+      border-color: #166534;
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+    }
+    .light.yellow {
+      background: #eab308;
+      border-color: #a16207;
+      box-shadow: 0 0 10px rgba(234, 179, 8, 0.45);
+    }
+    .light.red {
+      background: #ef4444;
+      border-color: #b91c1c;
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.45);
+    }
+    .light.blink {
+      animation: blink-red 1s ease-in-out infinite;
+    }
+    @keyframes blink-red {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.35; }
+    }
+    .admin-link {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 2400;
+      font-size: 12px;
+      font-family: system-ui, sans-serif;
+      color: #2d4a35;
+      background: rgba(255, 255, 255, 0.92);
+      padding: 8px 12px;
+      border-radius: 4px;
+      border: 1px solid rgba(26, 46, 31, 0.12);
+      box-shadow: 0 4px 14px rgba(26, 46, 31, 0.15);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(26, 46, 31, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-box {
+      width: 100%;
+      max-width: 400px;
+      background: #fff;
+      border-radius: 4px;
+      padding: 20px 18px 18px;
+      box-shadow: 0 16px 48px rgba(26, 46, 31, 0.35);
+      border: 1px solid rgba(26, 46, 31, 0.1);
+    }
+    .modal-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0 0 6px;
+      color: #1a2e1f;
+      text-align: center;
+    }
+    .modal-sub {
+      font-size: 13px;
+      color: #4a6b52;
+      text-align: center;
+      margin-bottom: 14px;
+      font-family: system-ui, sans-serif;
+      line-height: 1.45;
+    }
+    .modal-close {
+      margin-top: 8px;
+      font-size: 12px;
+      text-align: center;
+      color: #6b8570;
+      cursor: pointer;
+      font-family: system-ui, sans-serif;
+      text-decoration: underline;
+    }
+    #blockModal {
+      z-index: 2500;
+    }
+    #adminLoginModal {
+      z-index: 3000;
+    }
+    #adminPanelModal {
+      z-index: 3100;
+    }
+    .admin-stat {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px dashed #c5d4c8;
+      font-family: system-ui, sans-serif;
+      font-size: 13px;
+    }
+    .admin-stat:last-of-type {
+      border-bottom: none;
+      margin-bottom: 4px;
+    }
+    .admin-stat strong {
+      color: #1a2e1f;
+    }
+    .boot-loading {
+      text-align: center;
+      padding: 24px 0 8px;
+      font-size: 13px;
+      color: #4a6b52;
+      font-family: system-ui, sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <div id="warningBanner" class="warning-banner hidden"></div>
+
+    <div class="card">
+      <div class="logo-wrap">
+        <img src="logo-selecto.svg" alt="SELECTO" />
+      </div>
+      <div class="brand-sub">CONTROL HORARIO · SELECTO</div>
+      <h1>CONTROL HORARIO</h1>
+      <div class="subtitle">
+        Fichá tu entrada y salida desde este dispositivo autorizado.
+      </div>
+
+      <div id="bootLoading" class="boot-loading">
+        Verificando estado del sistema…
+      </div>
+
+      <div id="enrollBox" class="hidden">
+        <div class="section-title">Alta de empleado</div>
+        <div class="subtitle" style="margin-top: 2px; margin-bottom: 10px;">
+          Completá tus datos solo la primera vez, dentro del local.
+        </div>
+
+        <label for="dni">DNI *</label>
+        <input id="dni" placeholder="Ej: 30123456" inputmode="numeric" />
+
+        <label for="name">Nombre completo *</label>
+        <input id="name" placeholder="Ej: Martín Astorga" />
+
+        <label for="email">Email (opcional)</label>
+        <input id="email" placeholder="Ej: martin@empresa.com" />
+
+        <button id="btnEnroll" class="primary">Confirmar alta</button>
+        <button id="btnRetryEnroll" class="secondary hidden">Reintentar</button>
+
+        <div id="enrollMsg" class="msg muted">
+          Tocá <strong>Confirmar alta</strong> para registrar este dispositivo.
+        </div>
+
+        <div class="small-row">
+          <span id="deviceInfoText"></span>
+          <span class="link" id="lnkResetEnroll">Reiniciar este dispositivo</span>
+        </div>
+      </div>
+
+      <div id="punchBox" class="hidden">
+        <div class="section-title">Fichada</div>
+        <div class="subtitle" style="margin-top: 2px; margin-bottom: 10px;">
+          Tocá el botón al entrar y al salir de tu turno.
+        </div>
+
+        <button id="btnPunch" class="primary">FICHAR AHORA</button>
+        <button id="btnRetryPunch" class="secondary hidden">Reintentar fichada</button>
+
+        <div id="punchMsg" class="msg muted">
+          Listo para fichar desde este dispositivo.
+        </div>
+
+        <div class="justify-box">
+          <div class="small-row">
+            <span class="link" id="lnkJustificar">Justificar una falta</span>
+            <span class="link" id="lnkResetPunch">Reiniciar este dispositivo</span>
+          </div>
+
+          <div id="justifyPanel" class="hidden">
+            <div class="justify-title">Justificación de llegada tarde</div>
+            <div id="justifyTag" class="tag hidden">
+              <span>Minutos tarde:</span>
+              <span id="justifyMinutes"></span>
+            </div>
+            <label for="justifyText">Explicá brevemente el motivo *</label>
+            <textarea
+              id="justifyText"
+              placeholder="Ej: Problemas de transporte, turno médico, etc."
+            ></textarea>
+
+            <div class="file-label">Certificado (opcional)</div>
+            <input
+              type="file"
+              id="justifyFile"
+              class="file-input"
+              accept="image/*,application/pdf"
+            />
+
+            <button id="btnSendJustify" class="secondary">
+              Enviar justificación y registrar fichada
+            </button>
+            <div id="justifyMsg" class="msg muted">
+              Esta justificación quedará asociada a tu fichada de hoy.
+            </div>
+          </div>
+
+          <div id="justifyOnlyPanel" class="hidden">
+            <div class="justify-title">Justificar una falta</div>
+            <label for="justifyOnlyText">Motivo de la falta *</label>
+            <textarea
+              id="justifyOnlyText"
+              placeholder="Ej: Enfermedad, certificado médico, urgencia familiar..."
+            ></textarea>
+
+            <div class="file-label">Certificado o comprobante (opcional)</div>
+            <input
+              type="file"
+              id="justifyOnlyFile"
+              class="file-input"
+              accept="image/*,application/pdf"
+            />
+
+            <button id="btnSendJustifyOnly" class="secondary">
+              Enviar justificación
+            </button>
+            <div id="justifyOnlyMsg" class="msg muted">
+              Se registrará una justificación asociada a tu legajo.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">SELECTO — Control horario</div>
+    </div>
+
+    <div id="paymentStatusWidget" class="payment-status-widget hidden">
+      <div class="psw-days" id="pswDays">--</div>
+      <div class="psw-label">días restantes</div>
+      <div class="semaphore">
+        <span class="light" id="sem1"></span>
+        <span class="light" id="sem2"></span>
+        <span class="light" id="sem3"></span>
+      </div>
+    </div>
+  </div>
+
+  <div id="dniModal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-title">Identificación</div>
+      <div class="modal-sub">
+        Ingresá tu DNI para vincular este dispositivo con tu legajo.
+      </div>
+      <label for="dniInput">DNI</label>
+      <input id="dniInput" placeholder="Ej: 30123456" inputmode="numeric" />
+      <button id="btnResolveDni" class="primary">Continuar</button>
+      <div id="dniMsg" class="msg muted">Solo se usa dentro del local autorizado.</div>
+    </div>
+  </div>
+
+  <div id="resetModal" class="modal-overlay hidden" style="z-index: 2200;">
+    <div class="modal-box">
+      <div class="modal-title">Reiniciar dispositivo</div>
+      <div class="modal-sub">
+        Se desvinculará este equipo. Necesitás la clave de administración.
+      </div>
+      <label for="resetAdminKey">Clave de administración</label>
+      <input id="resetAdminKey" type="password" placeholder="Clave admin" />
+      <button id="btnConfirmReset" class="primary">Confirmar reinicio</button>
+      <div id="resetMsg" class="msg muted"></div>
+      <div class="modal-close" id="lnkCancelReset">Cancelar</div>
+    </div>
+  </div>
+
+  <div id="blockModal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-title">Servicio suspendido</div>
+      <div class="modal-sub" id="blockModalText">
+        El sistema está bloqueado por falta de pago. Contactá a Administración.
+      </div>
+      <button id="btnBlockAdminLogin" class="warning">Ingreso administrador</button>
+    </div>
+  </div>
+
+  <div id="adminLoginModal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-title">Panel administrador</div>
+      <div class="modal-sub">Ingresá tus credenciales de administración.</div>
+      <label for="adminUser">Usuario</label>
+      <input id="adminUser" placeholder="Usuario admin" autocomplete="username" />
+      <label for="adminPassword">Contraseña</label>
+      <input
+        id="adminPassword"
+        type="password"
+        placeholder="Contraseña"
+        autocomplete="current-password"
+      />
+      <button id="btnAdminLogin" class="primary">Ingresar</button>
+      <div id="adminLoginMsg" class="msg muted"></div>
+      <div class="modal-close" id="lnkCloseAdminLogin">Cancelar</div>
+    </div>
+  </div>
+
+  <div id="adminPanelModal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-title">Administración de pago</div>
+      <div class="modal-sub">Estado del servicio para este local.</div>
+      <div class="admin-stat">
+        <span>Último pago registrado</span>
+        <strong id="adminFechaPago">—</strong>
+      </div>
+      <div class="admin-stat">
+        <span>Días restantes</span>
+        <strong id="adminDaysRemaining">—</strong>
+      </div>
+      <div class="admin-stat">
+        <span>Estado</span>
+        <strong id="adminStatus">—</strong>
+      </div>
+      <button id="btnRegisterPaymentToday" class="primary">
+        Registrar pago hoy
+      </button>
+      <div id="adminPanelMsg" class="msg muted"></div>
+      <div class="modal-close" id="lnkCloseAdminPanel">Cerrar panel</div>
+    </div>
+  </div>
+
+  <span class="admin-link" id="lnkAdmin">Administrador</span>
+
+  <script>
+    const SUPABASE_URL = "https://eikznhztvekbfgcbvmvg.supabase.co";
+    const SUPABASE_ANON_KEY =
+      "sb_publishable_6o520cQS8Q1HTeCBFT8g4w_yl7LwkZ5";
+    const API_URL = SUPABASE_URL + "/functions/v1/control-horario";
+    const ADMIN_TOKEN_KEY = "ct_adminToken";
+
+    function getLocFromURL() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        return (params.get("loc") || "LOCAL_01").toUpperCase();
+      } catch (e) {
+        return "LOCAL_01";
+      }
+    }
+    const LOC = getLocFromURL();
+
+    function getDeviceToken() {
+      let token = localStorage.getItem("ct_deviceToken");
+      if (!token) {
+        if (window.crypto && crypto.randomUUID) {
+          token = crypto.randomUUID();
+        } else {
+          token = "d" + Date.now() + "-" + Math.random().toString(16).slice(2);
+        }
+        localStorage.setItem("ct_deviceToken", token);
+      }
+      return token;
+    }
+
+    let empleadoId = localStorage.getItem("ct_empleadoId") || null;
+    const deviceToken = getDeviceToken();
+    let identityInitialized = false;
+    let paymentState = null;
+
+    const bootLoading = document.getElementById("bootLoading");
+    const warningBanner = document.getElementById("warningBanner");
+    const paymentStatusWidget = document.getElementById("paymentStatusWidget");
+    const pswDays = document.getElementById("pswDays");
+    const sem1 = document.getElementById("sem1");
+    const sem2 = document.getElementById("sem2");
+    const sem3 = document.getElementById("sem3");
+
+    const enrollBox = document.getElementById("enrollBox");
+    const punchBox = document.getElementById("punchBox");
+    const enrollMsg = document.getElementById("enrollMsg");
+    const punchMsg = document.getElementById("punchMsg");
+    const btnEnroll = document.getElementById("btnEnroll");
+    const btnRetryEnroll = document.getElementById("btnRetryEnroll");
+    const btnPunch = document.getElementById("btnPunch");
+    const btnRetryPunch = document.getElementById("btnRetryPunch");
+    const deviceInfoText = document.getElementById("deviceInfoText");
+    const lnkResetEnroll = document.getElementById("lnkResetEnroll");
+    const lnkResetPunch = document.getElementById("lnkResetPunch");
+    const lnkJustificar = document.getElementById("lnkJustificar");
+
+    const justifyPanel = document.getElementById("justifyPanel");
+    const justifyText = document.getElementById("justifyText");
+    const justifyFile = document.getElementById("justifyFile");
+    const btnSendJustify = document.getElementById("btnSendJustify");
+    const justifyMsg = document.getElementById("justifyMsg");
+    const justifyTag = document.getElementById("justifyTag");
+    const justifyMinutes = document.getElementById("justifyMinutes");
+
+    const justifyOnlyPanel = document.getElementById("justifyOnlyPanel");
+    const justifyOnlyText = document.getElementById("justifyOnlyText");
+    const justifyOnlyFile = document.getElementById("justifyOnlyFile");
+    const btnSendJustifyOnly = document.getElementById("btnSendJustifyOnly");
+    const justifyOnlyMsg = document.getElementById("justifyOnlyMsg");
+
+    const dniModal = document.getElementById("dniModal");
+    const dniInput = document.getElementById("dniInput");
+    const btnResolveDni = document.getElementById("btnResolveDni");
+    const dniMsg = document.getElementById("dniMsg");
+
+    const resetModal = document.getElementById("resetModal");
+    const resetAdminKey = document.getElementById("resetAdminKey");
+    const btnConfirmReset = document.getElementById("btnConfirmReset");
+    const resetMsg = document.getElementById("resetMsg");
+    const lnkCancelReset = document.getElementById("lnkCancelReset");
+
+    const blockModal = document.getElementById("blockModal");
+    const blockModalText = document.getElementById("blockModalText");
+    const btnBlockAdminLogin = document.getElementById("btnBlockAdminLogin");
+
+    const adminLoginModal = document.getElementById("adminLoginModal");
+    const adminUser = document.getElementById("adminUser");
+    const adminPassword = document.getElementById("adminPassword");
+    const btnAdminLogin = document.getElementById("btnAdminLogin");
+    const adminLoginMsg = document.getElementById("adminLoginMsg");
+    const lnkCloseAdminLogin = document.getElementById("lnkCloseAdminLogin");
+
+    const adminPanelModal = document.getElementById("adminPanelModal");
+    const adminFechaPago = document.getElementById("adminFechaPago");
+    const adminDaysRemaining = document.getElementById("adminDaysRemaining");
+    const adminStatus = document.getElementById("adminStatus");
+    const btnRegisterPaymentToday = document.getElementById("btnRegisterPaymentToday");
+    const adminPanelMsg = document.getElementById("adminPanelMsg");
+    const lnkCloseAdminPanel = document.getElementById("lnkCloseAdminPanel");
+    const lnkAdmin = document.getElementById("lnkAdmin");
+
+    let ultimoMinutosTarde = null;
+
+    deviceInfoText.textContent = "ID disp.: " + deviceToken.slice(0, 8) + "•••";
+
+    function getAdminToken() {
+      return sessionStorage.getItem(ADMIN_TOKEN_KEY) || "";
+    }
+
+    function setAdminToken(token) {
+      if (token) sessionStorage.setItem(ADMIN_TOKEN_KEY, token);
+      else sessionStorage.removeItem(ADMIN_TOKEN_KEY);
+    }
+
+    function setMsg(el, type, text) {
+      el.className = "msg " + (type || "muted");
+      el.innerHTML = text;
+    }
+
+    function showModal(el) {
+      el.classList.remove("hidden");
+    }
+
+    function hideModal(el) {
+      el.classList.add("hidden");
+    }
+
+    function showEnroll() {
+      enrollBox.classList.remove("hidden");
+      punchBox.classList.add("hidden");
+      bootLoading.classList.add("hidden");
+    }
+
+    function showPunch() {
+      enrollBox.classList.add("hidden");
+      punchBox.classList.remove("hidden");
+      bootLoading.classList.add("hidden");
+    }
+
+    function hideIdentityPanels() {
+      enrollBox.classList.add("hidden");
+      punchBox.classList.add("hidden");
+    }
+
+    function updateSemaphore(daysRemaining) {
+      const lights = [sem1, sem2, sem3];
+      let cls = "green";
+      let blink = false;
+
+      if (daysRemaining > 5) {
+        cls = "green";
+      } else if (daysRemaining >= 3) {
+        cls = "yellow";
+      } else if (daysRemaining === 2) {
+        cls = "red";
+      } else {
+        cls = "red";
+        blink = true;
+      }
+
+      lights.forEach(function (light) {
+        light.className = "light " + cls + (blink ? " blink" : "");
+      });
+    }
+
+    function updatePaymentUI(state) {
+      paymentState = state;
+      const status = state.status;
+
+      if (status === "WARNING") {
+        warningBanner.textContent = state.mensaje || "Atención: el servicio requiere renovación de pago.";
+        warningBanner.classList.remove("hidden");
+        document.body.classList.add("has-warning-banner");
+      } else {
+        warningBanner.classList.add("hidden");
+        document.body.classList.remove("has-warning-banner");
+      }
+
+      if (status === "BLOCKED") {
+        blockModalText.textContent =
+          state.mensaje ||
+          "El sistema está bloqueado por falta de pago. Contactá a Administración.";
+        showModal(blockModal);
+      } else {
+        hideModal(blockModal);
+      }
+
+      if (status === "BLOCKED" || status === "CONFIG_ERROR") {
+        paymentStatusWidget.classList.add("hidden");
+      } else {
+        paymentStatusWidget.classList.remove("hidden");
+        pswDays.textContent = String(state.daysRemaining);
+        updateSemaphore(state.daysRemaining);
+      }
+
+      adminFechaPago.textContent = state.fechaPago || "—";
+      adminDaysRemaining.textContent = String(state.daysRemaining);
+      adminStatus.textContent = status;
+    }
+
+    async function postToAPI(payload, extraHeaders) {
+      try {
+        const headers = {
+          "Content-Type": "application/json",
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: "Bearer " + SUPABASE_ANON_KEY,
+        };
+        if (extraHeaders) {
+          Object.keys(extraHeaders).forEach(function (k) {
+            headers[k] = extraHeaders[k];
+          });
+        }
+        const resp = await fetch(API_URL, {
+          method: "POST",
+          headers: headers,
+          body: JSON.stringify(payload),
+        });
+        return await resp.json();
+      } catch (e) {
+        return { ok: false, error: "Error de red. Intentá nuevamente." };
+      }
+    }
+
+    async function checkPaymentStatus() {
+      return postToAPI({ action: "checkPaymentStatus", loc: LOC });
+    }
+
+    function getClientEnv() {
+      const nav = window.navigator || {};
+      const tz =
+        Intl.DateTimeFormat().resolvedOptions().timeZone ||
+        "America/Argentina/San_Juan";
+      return {
+        ua: nav.userAgent || "",
+        platform: nav.platform || "",
+        resolution: window.innerWidth + "x" + window.innerHeight,
+        lang: nav.language || "",
+        timeZone: tz,
+        cores: nav.hardwareConcurrency || "",
+        memoryGB: nav.deviceMemory || "",
+      };
+    }
+
+    function getLocation() {
+      return new Promise(function (resolve) {
+        if (!navigator.geolocation) {
+          resolve(null);
+          return;
+        }
+        navigator.geolocation.getCurrentPosition(
+          function (p) {
+            resolve({
+              lat: p.coords.latitude,
+              lng: p.coords.longitude,
+              acc: p.coords.accuracy,
+            });
+          },
+          function () {
+            resolve(null);
+          },
+          { enableHighAccuracy: true, timeout: 25000, maximumAge: 60000 }
+        );
+      });
+    }
+
+    function securityErrorText(base) {
+      return (
+        '<span class="emoji">😕</span> ' +
+        (base ||
+          "No se pudo validar que estés dentro del local. Verificá Wi-Fi y GPS.")
+      );
+    }
+
+    function handlePaymentBlockResponse(resp, msgEl) {
+      if (resp.code === "SYSTEM_BLOCKED_PAYMENT") {
+        setMsg(
+          msgEl,
+          "err",
+          resp.error || "Sistema bloqueado por falta de pago. Contactá a Administración."
+        );
+        checkPaymentStatus().then(function (st) {
+          if (st.ok) updatePaymentUI(st);
+        });
+        return true;
+      }
+      return false;
+    }
+
+    async function initIdentityOnce() {
+      if (identityInitialized) return;
+      identityInitialized = true;
+      hideIdentityPanels();
+
+      const stored = localStorage.getItem("ct_empleadoId");
+      if (stored) {
+        empleadoId = stored;
+        showPunch();
+        return;
+      }
+
+      const devResp = await postToAPI({
+        action: "resolveDevice",
+        loc: LOC,
+        deviceToken: deviceToken,
+      });
+
+      if (devResp.ok && devResp.found && devResp.empleadoId) {
+        empleadoId = devResp.empleadoId;
+        localStorage.setItem("ct_empleadoId", empleadoId);
+        showPunch();
+        return;
+      }
+
+      showModal(dniModal);
+      bootLoading.classList.add("hidden");
+    }
+
+    async function resolveDniFlow() {
+      const dni = dniInput.value.trim();
+      if (!dni) {
+        setMsg(dniMsg, "err", "Ingresá tu DNI para continuar.");
+        return;
+      }
+
+      setMsg(dniMsg, "muted", "Verificando DNI…");
+      btnResolveDni.disabled = true;
+
+      const geo = await getLocation();
+      const env = getClientEnv();
+      const payload = {
+        action: "resolveDni",
+        loc: LOC,
+        dni: dni,
+        deviceToken: deviceToken,
+        lat: geo ? geo.lat : null,
+        lng: geo ? geo.lng : null,
+        gpsPrecision: geo ? geo.acc : null,
+      };
+      Object.keys(env).forEach(function (k) {
+        payload[k] = env[k];
+      });
+
+      const resp = await postToAPI(payload);
+      btnResolveDni.disabled = false;
+
+      if (!resp.ok) {
+        if (resp.code === "DNI_DUPLICADO") {
+          setMsg(dniMsg, "err", resp.error);
+          return;
+        }
+        if (handlePaymentBlockResponse(resp, dniMsg)) return;
+        setMsg(dniMsg, "err", resp.error || "No se pudo verificar el DNI.");
+        return;
+      }
+
+      if (resp.found && resp.empleadoId) {
+        empleadoId = resp.empleadoId;
+        localStorage.setItem("ct_empleadoId", empleadoId);
+        hideModal(dniModal);
+        showPunch();
+        return;
+      }
+
+      hideModal(dniModal);
+      document.getElementById("dni").value = dni.replace(/\D/g, "");
+      document.getElementById("dni").readOnly = true;
+      document.getElementById("name").value = "";
+      document.getElementById("email").value = "";
+      showEnroll();
+      setMsg(
+        enrollMsg,
+        "muted",
+        "No encontramos tu DNI. Completá el alta para registrarte en este dispositivo."
+      );
+    }
+
+    async function doEnroll() {
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const dni = document.getElementById("dni").value.trim();
+
+      if (!dni) {
+        setMsg(enrollMsg, "err", "El DNI es obligatorio para continuar.");
+        return;
+      }
+      if (!name) {
+        setMsg(enrollMsg, "err", "Ingresá tu nombre completo para continuar.");
+        return;
+      }
+
+      setMsg(
+        enrollMsg,
+        "muted",
+        "Obteniendo ubicación (GPS) y validando la red del local…"
+      );
+      btnEnroll.disabled = true;
+      btnRetryEnroll.classList.add("hidden");
+
+      const geo = await getLocation();
+      if (!geo) {
+        setMsg(
+          enrollMsg,
+          "err",
+          securityErrorText(
+            "No se pudo obtener ubicación. Activá el GPS y acercate a una ventana."
+          )
+        );
+        btnEnroll.disabled = false;
+        btnRetryEnroll.classList.remove("hidden");
+        return;
+      }
+
+      const env = getClientEnv();
+      const payload = {
+        action: "enroll",
+        loc: LOC,
+        name: name,
+        email: email,
+        dni: dni,
+        deviceToken: deviceToken,
+        lat: geo.lat,
+        lng: geo.lng,
+        gpsPrecision: geo.acc,
+      };
+      Object.keys(env).forEach(function (k) {
+        payload[k] = env[k];
+      });
+
+      const resp = await postToAPI(payload);
+
+      if (resp.ok) {
+        empleadoId = resp.empleadoId;
+        localStorage.setItem("ct_empleadoId", empleadoId);
+        setMsg(
+          enrollMsg,
+          "ok",
+          "Alta registrada correctamente. Ya podés fichar desde este dispositivo."
+        );
+        showPunch();
+      } else {
+        if (resp.code === "SEGURIDAD") {
+          setMsg(enrollMsg, "err", securityErrorText(resp.error));
+        } else if (resp.code === "DNI_DUPLICADO") {
+          setMsg(enrollMsg, "err", resp.error);
+        } else if (handlePaymentBlockResponse(resp, enrollMsg)) {
+          /* handled */
+        } else {
+          setMsg(enrollMsg, "err", resp.error || "Error al registrar el alta.");
+        }
+        btnRetryEnroll.classList.remove("hidden");
+      }
+
+      btnEnroll.disabled = false;
+    }
+
+    async function doPunch() {
+      if (!empleadoId) {
+        setMsg(
+          punchMsg,
+          "err",
+          "Este dispositivo no tiene alta de empleado. Reiniciá y volvé a registrarte."
+        );
+        return;
+      }
+
+      setMsg(
+        punchMsg,
+        "muted",
+        "Obteniendo ubicación (GPS) y validando condiciones de seguridad…"
+      );
+      btnPunch.disabled = true;
+      btnRetryPunch.classList.add("hidden");
+      justifyPanel.classList.add("hidden");
+      justifyOnlyPanel.classList.add("hidden");
+      ultimoMinutosTarde = null;
+
+      const geo = await getLocation();
+      if (!geo) {
+        setMsg(
+          punchMsg,
+          "err",
+          securityErrorText(
+            "No se pudo obtener ubicación. Activá el GPS y acercate a una ventana."
+          )
+        );
+        btnPunch.disabled = false;
+        btnRetryPunch.classList.remove("hidden");
+        return;
+      }
+
+      const env = getClientEnv();
+      const payload = {
+        action: "punch",
+        loc: LOC,
+        empleadoId: empleadoId,
+        deviceToken: deviceToken,
+        lat: geo.lat,
+        lng: geo.lng,
+        gpsPrecision: geo.acc,
+        clientTs: new Date().toISOString(),
+      };
+      Object.keys(env).forEach(function (k) {
+        payload[k] = env[k];
+      });
+
+      const resp = await postToAPI(payload);
+
+      if (resp.ok) {
+        setMsg(
+          punchMsg,
+          "ok",
+          '<span class="emoji">✅</span> ' +
+            (resp.mensaje || "Fichada registrada correctamente.")
+        );
+      } else {
+        if (resp.code === "SEGURIDAD") {
+          setMsg(punchMsg, "err", securityErrorText(resp.error));
+          btnRetryPunch.classList.remove("hidden");
+        } else if (handlePaymentBlockResponse(resp, punchMsg)) {
+          /* handled */
+        } else if (resp.code === "REQUIERE_JUSTIFICACION") {
+          ultimoMinutosTarde = resp.minutosTarde || 0;
+          justifyMinutes.textContent = ultimoMinutosTarde;
+          justifyTag.classList.remove("hidden");
+          justifyPanel.classList.remove("hidden");
+          justifyOnlyPanel.classList.add("hidden");
+          justifyText.value = "";
+          if (justifyFile) justifyFile.value = "";
+          setMsg(
+            punchMsg,
+            "err",
+            '<span class="emoji">⏰</span> ' +
+              (resp.error ||
+                "Llegaste tarde. Debés justificar para registrar la fichada.")
+          );
+          setMsg(
+            justifyMsg,
+            "muted",
+            "Ingresá el motivo y tocá “Enviar justificación y registrar fichada”."
+          );
+        } else {
+          setMsg(
+            punchMsg,
+            "err",
+            resp.error || "Ocurrió un error al intentar fichar."
+          );
+          btnRetryPunch.classList.remove("hidden");
+        }
+      }
+
+      btnPunch.disabled = false;
+    }
+
+    async function doPunchJustificado() {
+      const motivo = justifyText.value.trim();
+      if (!motivo) {
+        setMsg(
+          justifyMsg,
+          "err",
+          "El motivo es obligatorio para registrar la fichada."
+        );
+        return;
+      }
+
+      if (!empleadoId) {
+        setMsg(
+          justifyMsg,
+          "err",
+          "No se encontró el empleado en este dispositivo. Reiniciá el dispositivo."
+        );
+        return;
+      }
+
+      setMsg(
+        justifyMsg,
+        "muted",
+        "Enviando justificación y registrando la fichada…"
+      );
+      btnSendJustify.disabled = true;
+
+      const geo = await getLocation();
+      if (!geo) {
+        setMsg(
+          justifyMsg,
+          "err",
+          securityErrorText(
+            "No se pudo obtener ubicación. Activá el GPS y acercate a una ventana."
+          )
+        );
+        btnSendJustify.disabled = false;
+        return;
+      }
+
+      const env = getClientEnv();
+      const fileName =
+        justifyFile && justifyFile.files && justifyFile.files[0]
+          ? justifyFile.files[0].name
+          : "";
+
+      const payload = {
+        action: "punchJustificado",
+        loc: LOC,
+        empleadoId: empleadoId,
+        deviceToken: deviceToken,
+        motivo: motivo,
+        minutosTarde: ultimoMinutosTarde || "",
+        tipoJustificacion: "LLEGADA_TARDE",
+        archivoNombre: fileName,
+        lat: geo.lat,
+        lng: geo.lng,
+        gpsPrecision: geo.acc,
+        clientTs: new Date().toISOString(),
+      };
+      Object.keys(env).forEach(function (k) {
+        payload[k] = env[k];
+      });
+
+      const resp = await postToAPI(payload);
+
+      if (resp.ok) {
+        setMsg(
+          justifyMsg,
+          "ok",
+          "Fichada registrada con justificación. Muchas gracias."
+        );
+        setMsg(
+          punchMsg,
+          "ok",
+          '<span class="emoji">✅</span> Fichada registrada con justificación.'
+        );
+        justifyPanel.classList.add("hidden");
+      } else {
+        if (resp.code === "SEGURIDAD") {
+          setMsg(justifyMsg, "err", securityErrorText(resp.error));
+        } else if (handlePaymentBlockResponse(resp, justifyMsg)) {
+          /* handled */
+        } else {
+          setMsg(
+            justifyMsg,
+            "err",
+            resp.error || "No se pudo registrar la justificación."
+          );
+        }
+      }
+
+      btnSendJustify.disabled = false;
+    }
+
+    function abrirJustificacionFalta() {
+      if (!empleadoId) {
+        setMsg(
+          punchMsg,
+          "err",
+          "Este dispositivo no tiene alta de empleado. Reiniciá y registrate primero."
+        );
+        return;
+      }
+      justifyPanel.classList.add("hidden");
+      justifyOnlyPanel.classList.remove("hidden");
+      justifyOnlyText.value = "";
+      if (justifyOnlyFile) justifyOnlyFile.value = "";
+      setMsg(
+        justifyOnlyMsg,
+        "muted",
+        "Ingresá el motivo de la falta y se registrará en el sistema."
+      );
+    }
+
+    async function enviarJustificacionFalta() {
+      const motivo = justifyOnlyText.value.trim();
+      if (!motivo) {
+        setMsg(
+          justifyOnlyMsg,
+          "err",
+          "El motivo es obligatorio para registrar la justificación."
+        );
+        return;
+      }
+
+      setMsg(justifyOnlyMsg, "muted", "Enviando justificación de falta…");
+      btnSendJustifyOnly.disabled = true;
+
+      const fileName =
+        justifyOnlyFile && justifyOnlyFile.files && justifyOnlyFile.files[0]
+          ? justifyOnlyFile.files[0].name
+          : "";
+
+      const resp = await postToAPI({
+        action: "justificar",
+        loc: LOC,
+        empleadoId: empleadoId,
+        motivo: motivo,
+        tipoJustificacion: "FALTA",
+        minutosTarde: "",
+        archivoNombre: fileName,
+      });
+
+      if (resp.ok) {
+        setMsg(justifyOnlyMsg, "ok", "Justificación registrada correctamente.");
+        setMsg(
+          punchMsg,
+          "ok",
+          '<span class="emoji">✅</span> Justificación registrada en el sistema.'
+        );
+        justifyOnlyPanel.classList.add("hidden");
+      } else {
+        setMsg(
+          justifyOnlyMsg,
+          "err",
+          resp.error || "No se pudo registrar la justificación."
+        );
+      }
+
+      btnSendJustifyOnly.disabled = false;
+    }
+
+    function openResetModal() {
+      resetAdminKey.value = "";
+      setMsg(resetMsg, "muted", "");
+      showModal(resetModal);
+    }
+
+    async function confirmResetDevice() {
+      const adminKey = resetAdminKey.value;
+      if (!adminKey) {
+        setMsg(resetMsg, "err", "Ingresá la clave de administración.");
+        return;
+      }
+
+      setMsg(resetMsg, "muted", "Desvinculando dispositivo…");
+      btnConfirmReset.disabled = true;
+
+      const resp = await postToAPI({
+        action: "adminResetDevice",
+        loc: LOC,
+        deviceToken: deviceToken,
+        adminKey: adminKey,
+      });
+
+      btnConfirmReset.disabled = false;
+
+      if (!resp.ok) {
+        setMsg(resetMsg, "err", resp.error || "No se pudo reiniciar el dispositivo.");
+        return;
+      }
+
+      localStorage.removeItem("ct_empleadoId");
+      localStorage.removeItem("ct_deviceToken");
+      location.reload();
+    }
+
+    function openAdminLogin() {
+      adminUser.value = "";
+      adminPassword.value = "";
+      setMsg(adminLoginMsg, "muted", "");
+      showModal(adminLoginModal);
+    }
+
+    function openAdminPanel(state) {
+      if (state) updatePaymentUI(state);
+      setMsg(adminPanelMsg, "muted", "");
+      showModal(adminPanelModal);
+    }
+
+    async function doAdminLogin() {
+      const user = adminUser.value.trim();
+      const password = adminPassword.value;
+      if (!user || !password) {
+        setMsg(adminLoginMsg, "err", "Completá usuario y contraseña.");
+        return;
+      }
+
+      setMsg(adminLoginMsg, "muted", "Verificando credenciales…");
+      btnAdminLogin.disabled = true;
+
+      const resp = await postToAPI({
+        action: "adminLogin",
+        loc: LOC,
+        user: user,
+        password: password,
+      });
+
+      btnAdminLogin.disabled = false;
+
+      if (!resp.ok) {
+        setMsg(adminLoginMsg, "err", resp.error || "Credenciales inválidas.");
+        return;
+      }
+
+      setAdminToken(resp.token);
+      hideModal(adminLoginModal);
+      openAdminPanel(resp.payment);
+
+      if (resp.payment && resp.payment.status !== "BLOCKED" && !identityInitialized) {
+        await initIdentityOnce();
+      }
+    }
+
+    async function registerPaymentToday() {
+      const token = getAdminToken();
+      if (!token) {
+        setMsg(adminPanelMsg, "err", "Sesión admin expirada. Volvé a ingresar.");
+        return;
+      }
+
+      setMsg(adminPanelMsg, "muted", "Registrando pago…");
+      btnRegisterPaymentToday.disabled = true;
+
+      const resp = await postToAPI(
+        {
+          action: "adminUpdatePaymentDate",
+          loc: LOC,
+          useToday: true,
+        },
+        { "x-admin-token": token }
+      );
+
+      btnRegisterPaymentToday.disabled = false;
+
+      if (!resp.ok) {
+        setMsg(adminPanelMsg, "err", resp.error || "No se pudo registrar el pago.");
+        return;
+      }
+
+      const state = resp.payment;
+      updatePaymentUI(state);
+      setMsg(adminPanelMsg, "ok", "Pago registrado correctamente para hoy.");
+
+      if (state.status !== "BLOCKED") {
+        hideModal(blockModal);
+        if (!identityInitialized) {
+          await initIdentityOnce();
+        }
+      }
+    }
+
+    async function bootApp() {
+      hideIdentityPanels();
+      bootLoading.classList.remove("hidden");
+
+      const resp = await checkPaymentStatus();
+      bootLoading.classList.add("hidden");
+
+      if (!resp.ok) {
+        updatePaymentUI({
+          status: "CONFIG_ERROR",
+          daysRemaining: 0,
+          fechaPago: "",
+          mensaje: resp.error || "No se pudo verificar el estado del sistema.",
+        });
+        await initIdentityOnce();
+        return;
+      }
+
+      updatePaymentUI(resp);
+
+      if (resp.status === "BLOCKED") {
+        return;
+      }
+
+      await initIdentityOnce();
+    }
+
+    btnEnroll.addEventListener("click", doEnroll);
+    btnRetryEnroll.addEventListener("click", doEnroll);
+    btnPunch.addEventListener("click", doPunch);
+    btnRetryPunch.addEventListener("click", doPunch);
+    btnSendJustify.addEventListener("click", doPunchJustificado);
+    lnkJustificar.addEventListener("click", abrirJustificacionFalta);
+    btnSendJustifyOnly.addEventListener("click", enviarJustificacionFalta);
+    lnkResetEnroll.addEventListener("click", function (e) {
+      e.preventDefault();
+      openResetModal();
+    });
+    lnkResetPunch.addEventListener("click", function (e) {
+      e.preventDefault();
+      openResetModal();
+    });
+    btnResolveDni.addEventListener("click", resolveDniFlow);
+    dniInput.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") resolveDniFlow();
+    });
+    btnConfirmReset.addEventListener("click", confirmResetDevice);
+    lnkCancelReset.addEventListener("click", function () {
+      hideModal(resetModal);
+    });
+    btnBlockAdminLogin.addEventListener("click", openAdminLogin);
+    btnAdminLogin.addEventListener("click", doAdminLogin);
+    lnkCloseAdminLogin.addEventListener("click", function () {
+      hideModal(adminLoginModal);
+    });
+    btnRegisterPaymentToday.addEventListener("click", registerPaymentToday);
+    lnkCloseAdminPanel.addEventListener("click", function () {
+      hideModal(adminPanelModal);
+    });
+    lnkAdmin.addEventListener("click", function () {
+      if (getAdminToken()) {
+        openAdminPanel(paymentState);
+      } else {
+        openAdminLogin();
+      }
+    });
+
+    bootApp();
+  </script>
+</body>
+</html>
